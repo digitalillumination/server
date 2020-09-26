@@ -1,0 +1,7 @@
+{
+  "name": "theillogical_server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Doyeong Kim <48087967+kimdoyeong@users.noreply.github.com>",
+  "license": "MIT"
+}
