@@ -32,6 +32,12 @@ const userSchema = new mongoose.Schema({
     }
 });
 
+userSchema.methods.comparePassword = function (this:UserDocument, password: string) {
+    const passwordEncrypted = crypto.pbkdf2Sync(password, this.encKey, 100000, 64, 'sha512').toString('base64');
+
+    return this.password === passwordEncrypted;
+};
+
 export interface IUser {
     userId: string,
     password: string,
@@ -41,6 +47,7 @@ export interface IUser {
 export interface UserDocument extends mongoose.Document, IUser{
     createdAt: Date;
     encKey: string;
+    comparePassword(password: string): boolean;
 }
 const User = mongoose.model<UserDocument>('User', userSchema);
 
