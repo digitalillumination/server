@@ -15,7 +15,7 @@
     "reflect-metadata": "^0.1.13"
   },
   "scripts": {
-    "start": "node dist",
+    "start": "node build",
     "build": "tsc",
     "dev": "nodemon -e ts --exec ts-node src/index.ts"
   }
