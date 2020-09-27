@@ -1,4 +1,4 @@
-import express from 'express';
+import express, {RequestHandler} from 'express';
 import "reflect-metadata";
 
 export function Router<T extends RouterClass>(constructor: T) {
@@ -22,8 +22,19 @@ export function Router<T extends RouterClass>(constructor: T) {
     };
 }
 export function routes(method: string, path: string) {
-    return function<T>(target: any, propertyKey: string) {
+    return function<T extends RequestHandler>(target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<T>) {
+        if (!descriptor.value) return;
+
         Reflect.defineMetadata(propertyKey, {method, path}, target);
+        const func = descriptor.value;
+        const handler: RequestHandler =  function (req, res, next) {
+            Promise.resolve(func(req, res, next))
+                .catch(e => {
+                    next(e);
+                });
+        };
+
+        descriptor.value = handler as T;
     }
 }
 
