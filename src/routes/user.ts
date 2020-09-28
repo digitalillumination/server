@@ -1,11 +1,12 @@
 import {Router, routes} from "../lib/decorators/router";
 import {Request, Response} from "express";
+import path from 'path';
 import User, {IUser} from "../models/User";
 import ExposableError from "../classes/ExposableError";
 import TokenManager from "../classes/TokenManager";
 import authMiddleware from "../lib/middlewares/auth";
-import upload from "../lib/declarations/upload";
-import {LoginRequiredError} from "../lib/declarations/error";
+import upload, {uploadPath} from "../lib/declarations/upload";
+import {LoginRequiredError, NotFoundError} from "../lib/declarations/error";
 
 @Router
 class UserRoutes {
@@ -50,6 +51,27 @@ class UserRoutes {
         res.json({
             success: true
         });
+    }
+    @routes("get", "/api/v1/user/:id")
+    async getUser(req: Request, res: Response) {
+        const user = await User.findById(req.params.id, ["username"]);
+        if (!user) throw NotFoundError("유저를");
+
+        const userObj = user.toObject();
+
+        res.json({
+            success: true,
+            data: userObj
+        });
+    }
+    @routes("get", "/api/v1/user/:id/profile_image")
+    async getUserProfile(req: Request, res: Response) {
+        const user = await User.findById(req.params.id, ['profile_image']);
+        if (!user) throw NotFoundError("유저를");
+
+        const profile_image_path = user.profile_image ? path.join(uploadPath, user.profile_image) : path.resolve(__dirname, '../default_profile.png');
+
+        res.sendFile(profile_image_path);
     }
 }
 
