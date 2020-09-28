@@ -9,6 +9,7 @@ const errorRequestHandler: ErrorRequestHandler = (err, req, res, next) => {
 
         error = validateError(message);
     } else if (error.name !== 'ExposableError') {
+        console.error(err.stack);
         error = InternalServerError;
     }
 
