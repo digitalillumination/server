@@ -12,8 +12,9 @@ export function Router<T extends RouterClass>(constructor: T) {
             super(...args);
 
             routes.forEach(route => {
+                const middlewares: any = route.options.middlewares ? route.options.middlewares : [];
                 // @ts-ignore
-                this.router[route.method](route.path, this[route.name]);
+                this.router[route.method](route.path, ...middlewares, this[route.name]);
             })
         }
         public static getInstance() {
@@ -21,11 +22,11 @@ export function Router<T extends RouterClass>(constructor: T) {
         }
     };
 }
-export function routes(method: string, path: string) {
+export function routes(method: string, path: string, options: Partial<RoutesOptions> = {}) {
     return function<T extends RequestHandler>(target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<T>) {
         if (!descriptor.value) return;
 
-        Reflect.defineMetadata(propertyKey, {method, path}, target);
+        Reflect.defineMetadata(propertyKey, {method, path, options}, target);
         const func = descriptor.value;
         const handler: RequestHandler =  function (req, res, next) {
             Promise.resolve(func(req, res, next))
@@ -40,3 +41,6 @@ export function routes(method: string, path: string) {
 
 type RouterClass = {new (...args: any[]): {
 }};
+interface RoutesOptions {
+    middlewares: RequestHandler[]
+}
