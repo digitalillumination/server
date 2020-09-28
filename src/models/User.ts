@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import crypto from 'crypto';
+import uniqueValidator from 'mongoose-unique-validator';
 
 const userSchema = new mongoose.Schema({
    userId: {
@@ -37,6 +38,7 @@ userSchema.methods.comparePassword = function (this:UserDocument, password: stri
 
     return this.password === passwordEncrypted;
 };
+userSchema.plugin(uniqueValidator, {message: "이미 존재하는 회원입니다."});
 
 export interface IUser {
     userId: string,
