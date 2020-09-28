@@ -17,7 +17,7 @@ function authMiddleware(options: {} = {}): RequestHandler {
 
         TokenManager.verifyToken(token)
             .then(user => {
-                (req as any).user = user;
+                res.locals.user = user;
                 next();
             })
             .catch(next);
