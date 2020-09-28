@@ -27,6 +27,9 @@ const userSchema = new mongoose.Schema({
        type: String,
         required: [true, "`username` 필드가 비어 있습니다."],
     },
+    profile_image: {
+       type: String
+    },
     createdAt: {
        type: Date,
         default: Date.now
@@ -44,7 +47,7 @@ export interface IUser {
     userId: string,
     password: string,
     username: string,
-
+    profile_image?: string
 }
 export interface UserDocument extends mongoose.Document, IUser{
     createdAt: Date;

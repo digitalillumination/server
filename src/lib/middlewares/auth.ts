@@ -4,11 +4,12 @@ import TokenManager from "../../classes/TokenManager";
 
 function authMiddleware(options: {} = {}): RequestHandler {
     return (req, res, next) => {
-        if (!req.headers['Authorization'] && typeof req.headers['Authorization'] === 'string') {
+        if (!req.headers['authorization'] && typeof req.headers['authorization'] !== 'string') {
             next(LoginRequiredError);
             return;
         }
-        const header = req.headers['Authorization'] as string;
+        const header = req.headers['authorization'];
+
         const [type, token] = header.split(' ');
         if (type !== 'Bearer') {
             next(BadRequestError);

@@ -3,6 +3,9 @@ import {Request, Response} from "express";
 import User, {IUser} from "../models/User";
 import ExposableError from "../classes/ExposableError";
 import TokenManager from "../classes/TokenManager";
+import authMiddleware from "../lib/middlewares/auth";
+import upload from "../lib/declarations/upload";
+import {LoginRequiredError} from "../lib/declarations/error";
 
 @Router
 class UserRoutes {
@@ -29,6 +32,23 @@ class UserRoutes {
         res.json({
             success: true,
             data: token
+        });
+    }
+
+    @routes("put", "/api/v1/user/profile_image", {
+        middlewares: [authMiddleware(), upload.single("image")]
+    })
+    async putProfileImage(req:Request, res: Response) {
+        const user = await User.findById(res.locals.user.id);
+        if (!user) throw LoginRequiredError;
+        if (!req.file.mimetype.match(/^image\//)) {
+            throw new ExposableError("이미지 파일을 올려 주세요.", "INVALID_FILE_TYPE_ERROR", 400);
+        }
+
+        user.profile_image = req.file.filename;
+        await user.save();
+        res.json({
+            success: true
         });
     }
 }
