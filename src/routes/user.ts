@@ -7,6 +7,7 @@ import TokenManager from "../classes/TokenManager";
 import authMiddleware from "../lib/middlewares/auth";
 import upload, {uploadPath} from "../lib/declarations/upload";
 import {LoginRequiredError, NotFoundError} from "../lib/declarations/error";
+import {Types} from "mongoose";
 
 @Router
 class UserRoutes {
@@ -54,8 +55,11 @@ class UserRoutes {
     }
     @routes("get", "/api/v1/user/:id")
     async getUser(req: Request, res: Response) {
+        const error = NotFoundError("유저를");
+        if (!Types.ObjectId.isValid(req.params.id)) throw error;
+
         const user = await User.findById(req.params.id, ["username"]);
-        if (!user) throw NotFoundError("유저를");
+        if (!user) throw error;
 
         const userObj = user.toObject();
 
