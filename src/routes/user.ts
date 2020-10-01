@@ -5,9 +5,11 @@ import User, {IUser} from "../models/User";
 import ExposableError from "../classes/ExposableError";
 import TokenManager from "../classes/TokenManager";
 import authMiddleware from "../lib/middlewares/auth";
-import upload, {uploadPath} from "../lib/declarations/upload";
+import upload from "../lib/declarations/upload";
 import {LoginRequiredError, NotFoundError} from "../lib/declarations/error";
 import {Types} from "mongoose";
+import ImageManager from "../classes/ImageManager";
+import {ImageDocument} from "../models/Image";
 
 @Router
 class UserRoutes {
@@ -38,16 +40,13 @@ class UserRoutes {
     }
 
     @routes("put", "/api/v1/user/profile_image", {
-        middlewares: [authMiddleware(), upload.single("image")]
+        middlewares: [authMiddleware(), upload.single("image"), ImageManager.single()]
     })
     async putProfileImage(req:Request, res: Response) {
         const user = await User.findById(res.locals.user.id);
         if (!user) throw LoginRequiredError;
-        if (!req.file.mimetype.match(/^image\//)) {
-            throw new ExposableError("이미지 파일을 올려 주세요.", "INVALID_FILE_TYPE_ERROR", 400);
-        }
 
-        user.profile_image = req.file.filename;
+        user.profile_image = res.locals.image._id;
         await user.save();
         res.json({
             success: true
@@ -70,10 +69,10 @@ class UserRoutes {
     }
     @routes("get", "/api/v1/user/:id/profile_image")
     async getUserProfile(req: Request, res: Response) {
-        const user = await User.findById(req.params.id, ['profile_image']);
+        const user = await User.findById(req.params.id, ['profile_image']).populate("profile_image");
         if (!user) throw NotFoundError("유저를");
 
-        const profile_image_path = user.profile_image ? path.join(uploadPath, user.profile_image) : path.resolve(__dirname, '../default_profile.png');
+        const profile_image_path = user.profile_image ? (user.profile_image as ImageDocument).path : path.resolve(__dirname, '../default_profile.png');
 
         res.sendFile(profile_image_path);
     }

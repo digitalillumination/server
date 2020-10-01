@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import crypto from 'crypto';
 import uniqueValidator from 'mongoose-unique-validator';
+import {ImageDocument} from "./Image";
 
 const userSchema = new mongoose.Schema({
    userId: {
@@ -28,7 +29,8 @@ const userSchema = new mongoose.Schema({
         required: [true, "`username` 필드가 비어 있습니다."],
     },
     profile_image: {
-       type: String
+       type: mongoose.SchemaTypes.ObjectId,
+        ref: 'Image'
     },
     createdAt: {
        type: Date,
@@ -47,7 +49,7 @@ export interface IUser {
     userId: string,
     password: string,
     username: string,
-    profile_image?: string
+    profile_image?: mongoose.Types.ObjectId | ImageDocument
 }
 export interface UserDocument extends mongoose.Document, IUser{
     createdAt: Date;
