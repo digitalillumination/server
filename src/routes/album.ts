@@ -1,11 +1,13 @@
 import {Router, routes} from "../lib/decorators/router";
 import {Request, Response} from "express";
 import fs from 'fs';
+import path from 'path';
 import authMiddleware from "../lib/middlewares/auth";
-import upload from "../lib/declarations/upload";
-import {BadRequestError} from "../lib/declarations/error";
+import upload, {uploadPath} from "../lib/declarations/upload";
+import {BadRequestError, NotFoundError} from "../lib/declarations/error";
 import Album from "../models/Album";
 import {isValidObjectId} from "mongoose";
+import {UserDocument} from "../models/User";
 
 @Router
 class AlbumRoutes {
@@ -62,42 +64,61 @@ class AlbumRoutes {
         }
     }
     @routes('get', '/api/v1/album')
-    async hello(req: Request, res: Response) {
+    async getAlbums(req: Request, res: Response) {
+        const albums = await Album.find().populate("by", ["username"]);
         res.json({
             success: true,
-            data: [
-                {
-                    id: "_dgsdgds",
-                    title: "Part I",
-                    artist: "Dil",
-                    imageUrl: "https://picsum.photos/200.jpg"
-                },
-                {
-                    id: "_dgsdgds",
-                    title: "The Real Gangster: Killer of Sunrin",
-                    artist: "Dil",
-                    imageUrl: "https://picsum.photos/200.jpg"
-                },
-                {
-                    id: "_dgsdgds",
-                    title: "Fuck sunrin",
-                    artist: "KBO",
-                    imageUrl: "https://picsum.photos/200.jpg"
-                },
-                {
-                    id: "_dgsdgds",
-                    title: "Kwon Byeong Oak and Cowboys",
-                    artist: "KBO",
-                    imageUrl: "https://picsum.photos/200.jpg"
-                },{
-                    id: "_dgsdgds",
-                    title: "My Switzerland bank account",
-                    artist: "KBO",
-                    imageUrl: "https://picsum.photos/200.jpg"
-                }
-
-            ]
+            data: albums.map(album => ({...album.toObject(), by: undefined, artist: (album.by as UserDocument).username}))
         });
+    }
+    @routes('get', '/api/v1/album/:id')
+    async getAlbum(req: Request, res: Response) {
+        const id = req.params.id;
+        const album = await this.getAlbumDocument(id);
+
+        res.json({
+            success: true,
+            data: album
+        })
+    }
+    @routes('get', '/api/v1/album/:id/:number/music')
+    async getAlbumMusic(req: Request, res: Response) {
+        const {id, number} = req.params;
+        if (Number.isNaN(number)) throw BadRequestError;
+        const index = parseInt(number, 10) - 1;
+
+        const album = await this.getAlbumDocument(id);
+        if (!album.songs[index]) throw NotFoundError("곡을");
+
+        res.sendFile(path.join(uploadPath, album.songs[index]));
+    }
+    @routes('get', '/api/v1/album/:id/:number')
+    async getAlbumMusicTitle(req: Request, res: Response) {
+        const {id, number} = req.params;
+        if (Number.isNaN(number)) throw BadRequestError;
+        const index = parseInt(number, 10) - 1;
+
+        const album = await this.getAlbumDocument(id);
+        if (!album.songs[index]) throw NotFoundError("곡을");
+
+        res.json({
+            success: true,
+            data: {
+                albumId: album._id,
+                albumTitle: album.title,
+                title: album.songTitles[index],
+                by: album.by
+            }
+        })
+
+    }
+
+    private async getAlbumDocument(id: any) {
+        if (!isValidObjectId(id)) throw BadRequestError;
+        const album = await Album.findById(id).populate("by", ["username"]);
+        if (!album) throw NotFoundError("앨범을");
+
+        return album;
     }
 }
 

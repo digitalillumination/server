@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import User from "./User";
+import User, {UserDocument} from "./User";
 import Image from "./Image";
 
 const albumSchema = new mongoose.Schema({
@@ -32,7 +32,7 @@ const albumSchema = new mongoose.Schema({
 });
 
 export interface IAlbum {
-    by: mongoose.Types.ObjectId,
+    by: mongoose.Types.ObjectId | UserDocument,
     title: string,
     songTitles: string[],
     songs: string[],
