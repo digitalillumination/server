@@ -29,7 +29,7 @@ export function routes(method: string, path: string, options: Partial<RoutesOpti
         Reflect.defineMetadata(propertyKey, {method, path, options}, target);
         const func = descriptor.value;
         const handler: RequestHandler =  function (req, res, next) {
-            Promise.resolve(func(req, res, next))
+            Promise.resolve(func.call(target, req, res, next))
                 .catch(e => {
                     next(e);
                 });
