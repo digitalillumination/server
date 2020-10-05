@@ -106,6 +106,7 @@ class AlbumRoutes {
             data: {
                 albumId: album._id,
                 albumTitle: album.title,
+                albumImage: album.image,
                 title: album.songTitles[index],
                 by: album.by
             }
@@ -115,7 +116,7 @@ class AlbumRoutes {
 
     private async getAlbumDocument(id: any) {
         if (!isValidObjectId(id)) throw BadRequestError;
-        const album = await Album.findById(id).populate("by", ["username"]);
+        const album = await Album.findById(id).populate("by", ["username", "profile_image"]);
         if (!album) throw NotFoundError("앨범을");
 
         return album;
