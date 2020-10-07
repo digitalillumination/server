@@ -186,7 +186,7 @@
       "name": "mongo",
       "host": null,
       "dockerVolumeConfiguration": {
-        "autoprovision": false,
+        "autoprovision": true,
         "labels": null,
         "scope": "shared",
         "driver": "local",
@@ -198,7 +198,7 @@
       "name": "upload",
       "host": null,
       "dockerVolumeConfiguration": {
-        "autoprovision": false,
+        "autoprovision": true,
         "labels": null,
         "scope": "shared",
         "driver": "local",
