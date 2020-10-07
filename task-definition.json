@@ -29,7 +29,13 @@
       "resourceRequirements": null,
       "ulimits": null,
       "dnsServers": null,
-      "mountPoints": [],
+      "mountPoints": [
+        {
+          "readOnly": null,
+          "containerPath": "/usr/app/uploads",
+          "sourceVolume": "upload"
+        }
+      ],
       "workingDirectory": null,
       "secrets": null,
       "dockerSecurityOptions": null,
@@ -37,7 +43,7 @@
       "memoryReservation": 512,
       "volumesFrom": [],
       "stopTimeout": null,
-      "image": "906280335898.dkr.ecr.ap-northeast-2.amazonaws.com/the-illogical-server",
+      "image": "906280335898.dkr.ecr.ap-northeast-2.amazonaws.com/the-illogical-server:22bf3f4028e8af65a043c7195f7d6f2b49627963",
       "startTimeout": null,
       "firelensConfiguration": null,
       "dependsOn": null,
@@ -61,7 +67,15 @@
     {
       "dnsSearchDomains": null,
       "environmentFiles": null,
-      "logConfiguration": null,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "secretOptions": null,
+        "options": {
+          "awslogs-group": "/ecs/the-illogical-task",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
       "entryPoint": null,
       "portMappings": [],
       "command": null,
@@ -76,7 +90,13 @@
       "resourceRequirements": null,
       "ulimits": null,
       "dnsServers": null,
-      "mountPoints": [],
+      "mountPoints": [
+        {
+          "readOnly": null,
+          "containerPath": "/data/db",
+          "sourceVolume": "mongo"
+        }
+      ],
       "workingDirectory": null,
       "secrets": null,
       "dockerSecurityOptions": null,
@@ -110,7 +130,7 @@
   "compatibilities": [
     "EC2"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:906280335898:task-definition/the-illogical-task:5",
+  "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:906280335898:task-definition/the-illogical-task:7",
   "family": "the-illogical-task",
   "requiresAttributes": [
     {
@@ -136,6 +156,18 @@
       "targetType": null,
       "value": null,
       "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "ecs.capability.docker-plugin.local"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.25"
     }
   ],
   "pidMode": null,
@@ -144,9 +176,34 @@
   ],
   "networkMode": null,
   "cpu": null,
-  "revision": 5,
+  "revision": 7,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
-  "volumes": []
+  "volumes": [
+    {
+      "efsVolumeConfiguration": null,
+      "name": "mongo",
+      "host": null,
+      "dockerVolumeConfiguration": {
+        "autoprovision": false,
+        "labels": null,
+        "scope": "shared",
+        "driver": "local",
+        "driverOpts": null
+      }
+    },
+    {
+      "efsVolumeConfiguration": null,
+      "name": "upload",
+      "host": null,
+      "dockerVolumeConfiguration": {
+        "autoprovision": false,
+        "labels": null,
+        "scope": "shared",
+        "driver": "local",
+        "driverOpts": null
+      }
+    }
+  ]
 }
